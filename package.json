@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
+    "build:frontend": "cd frontend && pnpm install && pnpm build",
     "start": "pnpm --filter frontend start",
     "install:all": "pnpm install && pnpm --filter frontend install && pnpm --filter backend install",
     "vercel:deploy": "vercel",
