@@ -7,10 +7,14 @@
     "dev": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
     "start": "pnpm --filter frontend start",
-    "install:all": "pnpm install && pnpm --filter frontend install && pnpm --filter backend install"
+    "install:all": "pnpm install && pnpm --filter frontend install && pnpm --filter backend install",
+    "vercel:deploy": "vercel",
+    "vercel:deploy:prod": "vercel --prod",
+    "vercel:dev": "vercel dev",
+    "vercel:link": "vercel link"
   },
   "devDependencies": {
-    "pnpm": "^8.0.0"
+    "pnpm": "^8.0.0",
+    "vercel": "^34.4.0"
   }
 }
-
