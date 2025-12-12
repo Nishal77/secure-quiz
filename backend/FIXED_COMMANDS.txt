@@ -1,0 +1,24 @@
+✅ FIXED COMMANDS - Use These!
+
+From backend directory:
+
+1. Login to Supabase:
+   pnpm run supabase:login
+   OR
+   ./.bin/supabase login
+
+2. Link project:
+   pnpm run supabase:link
+   OR
+   ./.bin/supabase link --project-ref tcfgopbbhshgcvvnwjki
+
+3. Deploy functions:
+   pnpm run deploy
+   OR
+   ./.bin/supabase functions deploy
+
+⚠️ IMPORTANT: 
+- Use "pnpm run" for npm scripts
+- OR use "./.bin/supabase" directly
+- Don't use "pnpm login/link/deploy" (those are pnpm's commands!)
+

@@ -1,0 +1,16 @@
+{
+  "name": "quiz-platform",
+  "version": "1.0.0",
+  "description": "Secure online quiz platform",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "start": "pnpm --filter frontend start",
+    "install:all": "pnpm install && pnpm --filter frontend install && pnpm --filter backend install"
+  },
+  "devDependencies": {
+    "pnpm": "^8.0.0"
+  }
+}
+

@@ -1,0 +1,30 @@
+{
+  "name": "quiz-backend",
+  "version": "1.0.0",
+  "description": "Supabase Edge Functions for Quiz Platform",
+  "scripts": {
+    "supabase": "./.bin/supabase",
+    "supabase:login": "./.bin/supabase login",
+    "supabase:link": "./.bin/supabase link --project-ref tcfgopbbhshgcvvnwjki",
+    "sync": "./sync-functions.sh",
+    "deploy": "./sync-functions.sh && ./.bin/supabase functions deploy",
+    "deploy:all": "./sync-functions.sh && ./.bin/supabase functions deploy",
+    "deploy:start-session": "./sync-functions.sh && ./.bin/supabase functions deploy start-session",
+    "deploy:submit": "./sync-functions.sh && ./.bin/supabase functions deploy submit",
+    "deploy:save-answer": "./sync-functions.sh && ./.bin/supabase functions deploy save-answer",
+    "deploy:tab-switch": "./sync-functions.sh && ./.bin/supabase functions deploy tab-switch",
+    "deploy:admin-export": "./sync-functions.sh && ./.bin/supabase functions deploy admin-export",
+    "deploy:server-time": "./sync-functions.sh && ./.bin/supabase functions deploy server-time",
+    "functions:list": "./.bin/supabase functions list",
+    "functions:logs": "./.bin/supabase functions logs",
+    "setup": "./.bin/supabase login && ./.bin/supabase link --project-ref tcfgopbbhshgcvvnwjki"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "@supabase/functions-js": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+

@@ -1,0 +1,17 @@
+# Supabase CLI binary
+.bin/
+
+# Supabase functions (synced from functions/)
+supabase/functions/
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
