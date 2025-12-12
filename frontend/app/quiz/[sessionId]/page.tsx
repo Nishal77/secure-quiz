@@ -30,6 +30,11 @@ export default function QuizPage() {
 
   // Handle submit
   const handleSubmit = useCallback(async (autoSubmit = false) => {
+    // Prevent submission if eliminated
+    if (isEliminated) {
+      return
+    }
+
     if (!session || session.is_submitted) return
 
     // Check tab switch limit
@@ -63,7 +68,7 @@ export default function QuizPage() {
       setError('An error occurred while submitting. Please try again.')
       setSubmitting(false)
     }
-  }, [session, sessionId, router])
+  }, [session, sessionId, router, isEliminated])
 
   // Load session and questions - only run once on mount
   useEffect(() => {
@@ -210,13 +215,9 @@ export default function QuizPage() {
             // Warning will be shown via modal
           },
           () => {
-            // Handle elimination
+            // Handle elimination - just show message, no submission
             setIsEliminated(true)
-            // Show elimination message for 2-3 seconds, then auto-submit
-            setTimeout(() => {
-              setSubmitting(true)
-              handleSubmit(true)
-            }, 2500) // 2.5 seconds delay before auto-submit
+            // Do NOT submit or redirect - just show elimination message
           }
         )
 
@@ -255,11 +256,11 @@ export default function QuizPage() {
     onExpire: handleTimerExpire,
   })
 
-  // Autosave with visual feedback - continue saving even when time is up
+  // Autosave with visual feedback - disabled when eliminated
   const { isSaving, lastSaved } = useAutosave({
     sessionId,
     answers,
-    enabled: !submitting && !!session && !session.is_submitted,
+    enabled: !submitting && !!session && !session.is_submitted && !isEliminated,
   })
 
   // Handle answer selection - disabled when time is up or eliminated
@@ -453,8 +454,8 @@ export default function QuizPage() {
           />
         </div>
 
-        {/* Elimination Message */}
-        {isEliminated && !submitting && (
+        {/* Elimination Message - Final message, no submission */}
+        {isEliminated && (
           <div className="fixed inset-0 bg-white flex items-center justify-center z-50 px-4">
             <div className="bg-white border-2 border-red-500 rounded-lg p-6 sm:p-8 text-center max-w-lg w-full shadow-sm">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5">
@@ -473,23 +474,13 @@ export default function QuizPage() {
                 </svg>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-red-600 mb-3 sm:mb-4">
-                Eliminated Due to Rule Violation
+                You Are Eliminated
               </h2>
               <div className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed px-2 space-y-2">
                 <p>Your quiz attempt recorded too many tab changes.</p>
-                <p>To ensure a fair competition, your session has been submitted.</p>
+                <p>To ensure a fair competition, this attempt has been terminated.</p>
                 <p>Please avoid switching tabs during your next attempt.</p>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Submitting Overlay - shown during submission after elimination */}
-        {isEliminated && submitting && (
-          <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-            <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-              <p className="text-gray-700 text-lg font-medium">Submitting quiz...</p>
             </div>
           </div>
         )}

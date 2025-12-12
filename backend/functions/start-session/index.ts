@@ -60,13 +60,22 @@ serve(async (req) => {
       )
     }
 
-    // Randomize question order (shuffle array)
+    // Randomize question order using Fisher-Yates shuffle algorithm
     const questionIds = questions.map((q) => q.id)
-    const shuffled = [...questionIds].sort(() => Math.random() - 0.5)
+    
+    // Fisher-Yates shuffle for proper randomization
+    const shuffled = [...questionIds]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
 
-    // Take first 3 questions for testing (or all if less than 3)
-    // TODO: Change back to 20 for production
-    const selectedQuestions = shuffled.slice(0, Math.min(3, shuffled.length))
+    // Select 15 unique questions randomly (or all available if less than 15)
+    // Questions are guaranteed to be unique since we're selecting from unique question IDs
+    const selectedQuestions = shuffled.slice(0, Math.min(15, shuffled.length))
+    
+    // Log for debugging (optional)
+    console.log(`Selected ${selectedQuestions.length} questions out of ${questions.length} available`)
 
     // Calculate expiration time
     const serverTime = new Date()

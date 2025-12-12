@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS questions (
   option_d TEXT NOT NULL,
   correct_answer CHAR(1) NOT NULL CHECK (correct_answer IN ('A', 'B', 'C', 'D')),
   marks INTEGER NOT NULL DEFAULT 1,
-  negative_marks DECIMAL(5,2) DEFAULT 0.25,
+  negative_marks DECIMAL(5,2) DEFAULT 0.15,
   difficulty VARCHAR(20) DEFAULT 'medium',
   question_set INTEGER CHECK (question_set IN (1, 2, 3, 4)),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

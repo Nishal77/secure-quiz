@@ -8,7 +8,7 @@ interface ResultWithSession extends Result {
   session: Session
 }
 
-type SortField = 'usn' | 'name' | 'final_score' | 'calculated_at'
+type SortField = 'usn' | 'name' | 'final_score' | 'calculated_at' | 'tab_switch_count'
 type SortOrder = 'asc' | 'desc'
 
 export default function AdminResultsPage() {
@@ -91,6 +91,10 @@ export default function AdminResultsPage() {
         case 'calculated_at':
           aValue = new Date(a.calculated_at || '').getTime()
           bValue = new Date(b.calculated_at || '').getTime()
+          break
+        case 'tab_switch_count':
+          aValue = a.session?.tab_switch_count || 0
+          bValue = b.session?.tab_switch_count || 0
           break
         default:
           return 0
@@ -185,7 +189,7 @@ export default function AdminResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -262,7 +266,7 @@ export default function AdminResultsPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('usn')}
                     >
                       <div className="flex items-center gap-2">
@@ -270,7 +274,7 @@ export default function AdminResultsPage() {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('name')}
                     >
                       <div className="flex items-center gap-2">
@@ -278,7 +282,7 @@ export default function AdminResultsPage() {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('final_score')}
                     >
                       <div className="flex items-center gap-2">
@@ -286,11 +290,19 @@ export default function AdminResultsPage() {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('calculated_at')}
                     >
                       <div className="flex items-center gap-2">
                         Submitted At {getSortIcon('calculated_at')}
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort('tab_switch_count')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Tab Switches {getSortIcon('tab_switch_count')}
                       </div>
                     </th>
                   </tr>
@@ -298,27 +310,60 @@ export default function AdminResultsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredAndSortedResults.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                         {searchTerm ? 'No results found matching your search' : 'No results found'}
                       </td>
                     </tr>
                   ) : (
-                    filteredAndSortedResults.map((result) => (
-                      <tr key={result.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {result.session?.usn || 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {result.session?.student_name || 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-indigo-600">
-                          {result.final_score.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(result.calculated_at ?? result.created_at)}
-                        </td>
-                      </tr>
-                    ))
+                    filteredAndSortedResults.map((result) => {
+                      const tabSwitchCount = result.session?.tab_switch_count || 0
+                      const hasTabSwitches = tabSwitchCount > 0
+                      
+                      return (
+                        <tr
+                          key={result.id}
+                          className={`transition-all duration-150 ${
+                            hasTabSwitches
+                              ? 'bg-red-50 hover:bg-red-100 border-l-4 border-red-500'
+                              : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                            hasTabSwitches ? 'text-red-900' : 'text-gray-900'
+                          }`}>
+                            {result.session?.usn || 'N/A'}
+                          </td>
+                          <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                            hasTabSwitches ? 'text-red-800 font-medium' : 'text-gray-700'
+                          }`}>
+                            {result.session?.student_name || 'N/A'}
+                          </td>
+                          <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${
+                            hasTabSwitches ? 'text-red-700' : 'text-indigo-600'
+                          }`}>
+                            {result.final_score.toFixed(2)}
+                          </td>
+                          <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                            hasTabSwitches ? 'text-red-700' : 'text-gray-600'
+                          }`}>
+                            {formatDate(result.calculated_at ?? result.created_at)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {hasTabSwitches ? (
+                              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-100 border-2 border-red-400 rounded-lg shadow-sm">
+                                <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse"></div>
+                                <span className="text-sm font-bold text-red-700">
+                                  {tabSwitchCount}
+                                </span>
+                                <span className="text-xs text-red-600 font-medium">switches</span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-500 font-medium">0</span>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>

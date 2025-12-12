@@ -210,7 +210,7 @@ async function insertQuestions() {
     option_d: q.option_d,
     correct_answer: q.correct_answer,
     marks: q.marks || 1,
-    negative_marks: q.negative_marks || 0.25,
+    negative_marks: q.negative_marks || 0.15,
     difficulty: q.difficulty || 'medium',
     question_set: getRandomSet(),
   }));

@@ -124,7 +124,7 @@ export default function AdminEventsPage() {
           option_d: optionD.trim(),
           correct_answer: correctAnswer.trim().toUpperCase(),
           marks: parseInt(marks) || 1,
-          negative_marks: parseFloat(negativeMarks) || 0.25,
+          negative_marks: parseFloat(negativeMarks) || 0.15,
         })
       }
     }

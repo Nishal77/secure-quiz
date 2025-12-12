@@ -124,7 +124,7 @@ serve(async (req) => {
         selected_answer: answer?.selected_answer || null,
         correct_answer: question?.correct_answer || '',
         marks: question?.marks || 1,
-        negative_marks: question?.negative_marks || 0.25,
+        negative_marks: question?.negative_marks || 0.15,
       }
     })
 

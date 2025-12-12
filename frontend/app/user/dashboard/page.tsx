@@ -159,26 +159,33 @@ export default function UserDashboard() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               {!session.is_submitted ? (
-                <button
-                  onClick={handleStartQuiz}
-                  className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors font-semibold"
-                >
-                  Start Quiz
-                </button>
+                <>
+                  <button
+                    onClick={handleStartQuiz}
+                    className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors font-semibold"
+                  >
+                    Start Quiz
+                  </button>
+                  <button
+                    onClick={() => router.push('/')}
+                    className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
-                <button
-                  onClick={() => router.push(`/quiz/${session.id}/result`)}
-                  className="flex-1 bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold"
-                >
-                  View Results
-                </button>
+                <div className="w-full">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 text-center">
+                    <p className="text-green-800 font-medium">Quiz Submitted Successfully!</p>
+                  </div>
+                  <button
+                    onClick={() => router.push('/')}
+                    className="w-full bg-gray-200 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
               )}
-              <button
-                onClick={() => router.push('/')}
-                className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
-              >
-                Logout
-              </button>
           </div>
         </div>
       </div>
