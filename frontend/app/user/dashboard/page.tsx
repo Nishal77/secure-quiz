@@ -124,36 +124,39 @@ export default function UserDashboard() {
           {/* Quiz Instructions - Clean and Professional */}
             {!session.is_submitted && (
             <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Quiz Instructions</h2>
+              <div className="mb-4 pb-4 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Quiz Instructions</h2>
+                <p className="text-sm text-gray-600 italic">This quiz is designed to ensure fairness and integrity for all participants.</p>
+              </div>
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-3">
-                  <span className="text-gray-400 mt-1">•</span>
+                  <span className="text-red-500 font-bold mt-0.5">⚠</span>
                   <span>
-                    <strong className="text-gray-900">Tab Switching is Prohibited:</strong> Switching tabs, minimizing the browser, or opening other applications will result in immediate disqualification. Your quiz will be automatically submitted with penalties.
+                    <strong className="text-red-600">Tab Switching Prohibited:</strong> Switching tabs or minimizing the browser will result in <strong className="text-red-600">immediate elimination</strong>. Your attempt will be terminated.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gray-400 mt-1">•</span>
-                  <span>You have a limited time to complete the quiz. The timer starts when you begin and cannot be paused.</span>
+                  <span><strong className="text-gray-900">Time Limit:</strong> 15 minutes. Timer starts when you begin and cannot be paused.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gray-400 mt-1">•</span>
-                  <span>Answers are automatically saved as you navigate between questions.</span>
+                  <span>Answers are <strong className="text-gray-900">automatically saved</strong> as you navigate between questions.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gray-400 mt-1">•</span>
-                  <span>Use navigation buttons to move between questions. Review all answers before final submission.</span>
+                  <span>Review all answers before final submission. Once submitted, changes cannot be made.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gray-400 mt-1">•</span>
-                  <span>Ensure stable internet connection. Do not refresh the page during the quiz.</span>
+                  <span>Ensure stable internet connection. <strong className="text-gray-900">Do not refresh</strong> the page during the quiz.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gray-400 mt-1">•</span>
-                  <span>All activities are monitored and logged for security purposes.</span>
+                  <span>All activities are <strong className="text-gray-900">monitored and logged</strong> to maintain quiz integrity.</span>
                 </li>
-                </ul>
-              </div>
+              </ul>
+            </div>
             )}
 
             {/* Action Buttons */}

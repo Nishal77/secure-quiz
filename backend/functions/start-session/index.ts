@@ -32,18 +32,34 @@ serve(async (req) => {
       )
     }
 
-    // Check if session already exists
-    const { data: existingSession } = await supabase
+    // Check if USN has already been used (globally unique constraint)
+    // USN can only be used once across all events
+    const { data: existingSession, error: checkError } = await supabase
       .from('sessions')
-      .select('id')
-      .eq('event_id', eventId)
+      .select('id, event_id, student_name, is_submitted')
       .eq('usn', usn.toUpperCase())
       .single()
 
     if (existingSession) {
+      // USN already exists - return error with clear message
       return new Response(
-        JSON.stringify({ sessionId: existingSession.id }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'USN already registered',
+          message: `This USN (${usn.toUpperCase()}) has already been used. Each USN can only be registered once.`
+        }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // If checkError exists but it's not a "not found" error, handle it
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('USN check error:', checkError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to verify USN',
+          details: checkError.message || 'Database error occurred'
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -100,6 +116,18 @@ serve(async (req) => {
 
     if (sessionError) {
       console.error('Session creation error:', sessionError)
+      
+      // Check if error is due to unique constraint violation (USN already exists)
+      if (sessionError.code === '23505' || sessionError.message?.includes('unique') || sessionError.message?.includes('duplicate')) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'USN already registered',
+            message: `This USN (${usn.toUpperCase()}) has already been used. Each USN can only be registered once.`
+          }),
+          { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
       return new Response(
         JSON.stringify({ 
           error: 'Failed to create session',

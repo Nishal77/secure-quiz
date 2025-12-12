@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { validateUSN, validateName } from '@/lib/validation'
@@ -11,15 +11,86 @@ export default function LoginPage() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [usnError, setUsnError] = useState('')
+
+  // Check if USN is already registered (debounced, silent check)
+  const checkUSNAvailability = useCallback(async (usnValue: string) => {
+    const trimmedUsn = usnValue.trim().toUpperCase()
+    
+    // Reset error if USN is empty or too short
+    if (!trimmedUsn || trimmedUsn.length < 3) {
+      setUsnError('')
+      return
+    }
+
+    // Validate USN format first
+    const usnValidation = validateUSN(trimmedUsn)
+    if (!usnValidation.valid) {
+      setUsnError('')
+      return
+    }
+
+    try {
+      // Check if USN already exists in sessions
+      const { data: existingSession } = await supabase
+        .from('sessions')
+        .select('id')
+        .eq('usn', trimmedUsn)
+        .maybeSingle()
+
+      if (existingSession) {
+        setUsnError(`This USN (${trimmedUsn}) has already been registered. Each USN can only be used once.`)
+      } else {
+        setUsnError('')
+      }
+    } catch (err) {
+      // Silent fail - don't show error for check failures
+      console.error('Error checking USN:', err)
+    }
+  }, [])
+
+  // Debounce USN check (silent, no loading states)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (usn.trim()) {
+        checkUSNAvailability(usn)
+      } else {
+        setUsnError('')
+      }
+    }, 500) // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId)
+  }, [usn, checkUSNAvailability])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setUsnError('')
 
     // Validate inputs
     const usnValidation = validateUSN(usn)
     if (!usnValidation.valid) {
       setError(usnValidation.error || 'Invalid USN')
+      return
+    }
+
+    // Check if USN is already registered (final check before submit)
+    if (usnError) {
+      setError(usnError)
+      return
+    }
+
+    // Final check: verify USN is still available
+    const trimmedUsn = usn.trim().toUpperCase()
+    const { data: existingSession } = await supabase
+      .from('sessions')
+      .select('id')
+      .eq('usn', trimmedUsn)
+      .maybeSingle()
+
+    if (existingSession) {
+      setError(`This USN (${trimmedUsn}) has already been registered. Each USN can only be used once.`)
+      setLoading(false)
       return
     }
 
@@ -60,6 +131,7 @@ export default function LoginPage() {
         // Handle different error types
         let errorMessage = 'Failed to start quiz session. Please try again.'
         
+        // Check if error response contains message or error field
         if (sessionError.message) {
           errorMessage = sessionError.message
         } else if (sessionError.error) {
@@ -68,13 +140,28 @@ export default function LoginPage() {
           errorMessage = sessionError
         }
         
-        // Check for specific error codes
-        if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+        // Check for specific error types
+        if (errorMessage.includes('USN already registered') || errorMessage.includes('already been used')) {
+          errorMessage = `This USN (${usn.trim().toUpperCase()}) has already been registered. Each USN can only be used once.`
+        } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
           errorMessage = 'Authentication failed. Please contact administrator.'
         } else if (errorMessage.includes('404') || errorMessage.includes('not found')) {
           errorMessage = 'Event or questions not found. Please contact administrator.'
         } else if (errorMessage.includes('No questions')) {
           errorMessage = 'No questions available for this event. Please contact administrator.'
+        }
+        
+        setError(errorMessage)
+        setLoading(false)
+        return
+      }
+      
+      // Check if data contains error (for 409 status codes)
+      if (data && data.error) {
+        let errorMessage = data.message || data.error || 'Failed to start quiz session. Please try again.'
+        
+        if (errorMessage.includes('USN already registered') || errorMessage.includes('already been used')) {
+          errorMessage = `This USN (${usn.trim().toUpperCase()}) has already been registered. Each USN can only be used once.`
         }
         
         setError(errorMessage)
@@ -121,13 +208,26 @@ export default function LoginPage() {
                 id="usn"
                 type="text"
                 value={usn}
-                onChange={(e) => setUsn(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                onChange={(e) => {
+                  setUsn(e.target.value)
+                  setUsnError('') // Clear error when user starts typing
+                }}
+                className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                  usnError ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter your USN"
                 required
                 disabled={loading}
                 autoComplete="off"
               />
+              {usnError && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {usnError}
+                </p>
+              )}
             </div>
 
             <div>
@@ -155,7 +255,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !!usnError}
               className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Starting Quiz...' : 'Start Quiz'}

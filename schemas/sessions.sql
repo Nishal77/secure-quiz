@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   server_start_time TIMESTAMP WITH TIME ZONE NOT NULL, -- Server-verified start time
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(event_id, usn) -- One session per USN per event
+  UNIQUE(usn) -- USN can only be used once globally across all events
 );
 
 -- Indexes for faster queries
