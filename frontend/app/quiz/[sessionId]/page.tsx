@@ -28,6 +28,43 @@ export default function QuizPage() {
   const [warningCount, setWarningCount] = useState(0)
   const [isEliminated, setIsEliminated] = useState(false)
 
+  // Handle submit
+  const handleSubmit = useCallback(async (autoSubmit = false) => {
+    if (!session || session.is_submitted) return
+
+    // Check tab switch limit
+    const tabSwitches = getTabSwitchCount()
+    if (tabSwitches > QUIZ_CONFIG.MAX_TAB_SWITCHES && !autoSubmit) {
+      alert(`You have exceeded the maximum allowed tab switches (${QUIZ_CONFIG.MAX_TAB_SWITCHES}). Your quiz will be submitted automatically.`)
+    }
+
+    setSubmitting(true)
+
+    try {
+      const { data, error: submitError } = await supabase.functions.invoke('submit', {
+        body: {
+          sessionId,
+        },
+      })
+
+      if (submitError) {
+        setError('Failed to submit quiz. Please try again.')
+        setSubmitting(false)
+        return
+      }
+
+      // Clear timer storage on successful submit
+      clearQuizTimer(sessionId)
+
+      // Redirect to results page
+      router.push(`/quiz/${sessionId}/result`)
+    } catch (err) {
+      console.error('Submit error:', err)
+      setError('An error occurred while submitting. Please try again.')
+      setSubmitting(false)
+    }
+  }, [session, sessionId, router])
+
   // Load session and questions
   useEffect(() => {
     if (!sessionId) return
@@ -90,7 +127,7 @@ export default function QuizPage() {
           } catch {
             // If not JSON, might be PostgreSQL array format like "{uuid1,uuid2}"
             const cleaned = sessionData.question_order.replace(/[{}"]/g, '')
-            questionIds = cleaned.split(',').filter(id => id.trim())
+            questionIds = cleaned.split(',').filter((id: string) => id.trim())
           }
         }
         
@@ -192,44 +229,7 @@ export default function QuizPage() {
     }
 
     loadQuiz()
-  }, [sessionId, router])
-
-  // Handle submit
-  const handleSubmit = useCallback(async (autoSubmit = false) => {
-    if (!session || session.is_submitted) return
-
-    // Check tab switch limit
-    const tabSwitches = getTabSwitchCount()
-    if (tabSwitches > QUIZ_CONFIG.MAX_TAB_SWITCHES && !autoSubmit) {
-      alert(`You have exceeded the maximum allowed tab switches (${QUIZ_CONFIG.MAX_TAB_SWITCHES}). Your quiz will be submitted automatically.`)
-    }
-
-    setSubmitting(true)
-
-    try {
-      const { data, error: submitError } = await supabase.functions.invoke('submit', {
-        body: {
-          sessionId,
-        },
-      })
-
-      if (submitError) {
-        setError('Failed to submit quiz. Please try again.')
-        setSubmitting(false)
-        return
-      }
-
-      // Clear timer storage on successful submit
-      clearQuizTimer(sessionId)
-
-      // Redirect to results page
-      router.push(`/quiz/${sessionId}/result`)
-    } catch (err) {
-      console.error('Submit error:', err)
-      setError('An error occurred while submitting. Please try again.')
-      setSubmitting(false)
-    }
-  }, [session, sessionId, router])
+  }, [sessionId, router, handleSubmit])
 
   // Timer - 15 minutes countdown
   const handleTimerExpire = useCallback(async () => {
@@ -395,7 +395,6 @@ export default function QuizPage() {
           <Navigation
             currentQuestion={currentQuestionIndex}
             totalQuestions={questions.length}
-            answers={answers}
             questionOrder={session.question_order}
             onQuestionSelect={handleQuestionSelect}
             onSubmit={() => handleSubmit(false)}
@@ -423,7 +422,7 @@ export default function QuizPage() {
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-red-600 mb-3 sm:mb-4">You Are Eliminated</h2>
               <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed px-2">
-                You exceeded the allowed number of tab switches. To keep the quiz fair for everyone, this attempt has been closed. Please stay on the quiz screen next time — you'll do great!
+                You exceeded the allowed number of tab switches. To keep the quiz fair for everyone, this attempt has been closed. Please stay on the quiz screen next time — you&apos;ll do great!
               </p>
             </div>
           </div>
@@ -458,7 +457,7 @@ export default function QuizPage() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Time's Up!</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Time&apos;s Up!</h2>
               <p className="text-gray-700 mb-4">
                 Your quiz time has expired. Your responses are being automatically submitted.
               </p>

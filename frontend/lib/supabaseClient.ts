@@ -65,5 +65,7 @@ export interface Result {
   negative_marks: number;
   final_score: number;
   percentage: number;
+  calculated_at?: string;
+  created_at?: string;
 }
 

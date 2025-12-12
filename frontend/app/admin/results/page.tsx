@@ -173,7 +173,8 @@ export default function AdminResultsPage() {
     }
   }
 
-  function formatDate(dateString: string) {
+  function formatDate(dateString: string | undefined) {
+    if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -314,7 +315,7 @@ export default function AdminResultsPage() {
                           {result.final_score.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(result.calculated_at || result.created_at)}
+                          {formatDate(result.calculated_at ?? result.created_at)}
                         </td>
                       </tr>
                     ))

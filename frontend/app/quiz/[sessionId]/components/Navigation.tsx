@@ -3,7 +3,6 @@
 interface NavigationProps {
   currentQuestion: number
   totalQuestions: number
-  answers: Record<string, 'A' | 'B' | 'C' | 'D' | null>
   questionOrder: string[]
   onQuestionSelect: (index: number) => void
   onSubmit: () => void

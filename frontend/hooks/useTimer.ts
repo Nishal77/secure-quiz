@@ -1,12 +1,30 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { calculateTimeRemaining, isTimerExpired } from '@/lib/timer'
+import { isTimerExpired } from '@/lib/timer'
 import { QUIZ_CONFIG } from '@/lib/constants'
 
 interface UseTimerProps {
   expiresAt: string
   onExpire: () => void
+}
+
+/**
+ * Calculate time remaining until expiration
+ */
+function calculateTimeRemaining(
+  expiresAt: string,
+  serverTime: number,
+  clientTime: number,
+  offset: number
+): number {
+  if (!expiresAt || !serverTime) return 0
+  
+  const adjustedClientTime = clientTime + offset
+  const expiresAtMs = new Date(expiresAt).getTime()
+  const remaining = Math.max(0, Math.floor((expiresAtMs - adjustedClientTime) / 1000))
+  
+  return remaining
 }
 
 export function useTimer({ expiresAt, onExpire }: UseTimerProps) {
