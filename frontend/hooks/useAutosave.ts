@@ -48,16 +48,16 @@ export function useAutosave({ sessionId, answers, enabled }: UseAutosaveProps): 
             if (!lastAnswer || lastAnswer.selected_answer !== answer.selected_answer) {
               savePromises.push(
                 supabase.functions.invoke('save-answer', {
-                  body: {
-                    sessionId,
-                    questionId,
-                    selectedAnswer: answer.selected_answer,
-                  },
+                body: {
+                  sessionId,
+                  questionId,
+                  selectedAnswer: answer.selected_answer,
+                },
                 }).then(() => {
                   // Answer saved successfully
                 }).catch((error) => {
                   console.error(`Failed to save answer for question ${questionId}:`, error)
-                })
+              })
               )
             }
           }

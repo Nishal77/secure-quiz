@@ -119,10 +119,10 @@ export default function UserDashboard() {
               Welcome, {session.student_name}!
             </h1>
             <p className="text-lg text-gray-600">USN: {session.usn}</p>
-          </div>
+            </div>
 
           {/* Quiz Instructions - Clean and Professional */}
-          {!session.is_submitted && (
+            {!session.is_submitted && (
             <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Quiz Instructions</h2>
               <ul className="space-y-3 text-gray-700">
@@ -152,33 +152,33 @@ export default function UserDashboard() {
                   <span className="text-gray-400 mt-1">•</span>
                   <span>All activities are monitored and logged for security purposes.</span>
                 </li>
-              </ul>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            {!session.is_submitted ? (
-              <button
-                onClick={handleStartQuiz}
-                className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors font-semibold"
-              >
-                Start Quiz
-              </button>
-            ) : (
-              <button
-                onClick={() => router.push(`/quiz/${session.id}/result`)}
-                className="flex-1 bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold"
-              >
-                View Results
-              </button>
+                </ul>
+              </div>
             )}
-            <button
-              onClick={() => router.push('/')}
-              className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
-            >
-              Logout
-            </button>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              {!session.is_submitted ? (
+                <button
+                  onClick={handleStartQuiz}
+                  className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors font-semibold"
+                >
+                  Start Quiz
+                </button>
+              ) : (
+                <button
+                  onClick={() => router.push(`/quiz/${session.id}/result`)}
+                  className="flex-1 bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold"
+                >
+                  View Results
+                </button>
+              )}
+              <button
+                onClick={() => router.push('/')}
+                className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Logout
+              </button>
           </div>
         </div>
       </div>

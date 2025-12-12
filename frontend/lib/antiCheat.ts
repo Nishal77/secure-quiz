@@ -136,7 +136,7 @@ export function initTabSwitchDetection(
     const touchDuration = Date.now() - touchStartTime;
     if (touchDuration > 500) {
       // Long press detected
-      e.preventDefault();
+    e.preventDefault();
       return false;
     }
   });
