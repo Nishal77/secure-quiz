@@ -65,9 +65,10 @@ export default function QuizPage() {
     }
   }, [session, sessionId, router])
 
-  // Load session and questions
+  // Load session and questions - only run once on mount
   useEffect(() => {
     if (!sessionId) return
+    let isMounted = true
 
     async function loadQuiz() {
       try {
@@ -182,13 +183,13 @@ export default function QuizPage() {
 
         setQuestions(sortedQuestions)
 
-        // Load existing answers
+        // Load existing answers from database (only on initial load)
         const { data: answersData } = await supabase
           .from('answers')
           .select('*')
           .eq('session_id', sessionId)
 
-        if (answersData) {
+        if (isMounted && answersData && answersData.length > 0) {
           const answersMap: Record<string, Answer> = {}
           answersData.forEach((answer) => {
             answersMap[answer.question_id] = {
@@ -220,16 +221,24 @@ export default function QuizPage() {
           }
         )
 
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       } catch (err) {
         console.error('Load quiz error:', err)
-        setError('Failed to load quiz')
-        setLoading(false)
+        if (isMounted) {
+          setError('Failed to load quiz')
+          setLoading(false)
+        }
       }
     }
 
     loadQuiz()
-  }, [sessionId, router, handleSubmit])
+
+    return () => {
+      isMounted = false
+    }
+  }, [sessionId, router]) // Removed handleSubmit from dependencies to prevent re-running
 
   // Timer - 15 minutes countdown
   const handleTimerExpire = useCallback(async () => {
@@ -255,21 +264,35 @@ export default function QuizPage() {
   })
 
   // Handle answer selection - disabled when time is up or eliminated
-  const handleAnswerSelect = (answer: 'A' | 'B' | 'C' | 'D') => {
-    if (!session || session.is_submitted || isExpired || timeUp || isEliminated) return
+  const handleAnswerSelect = useCallback((answer: 'A' | 'B' | 'C' | 'D') => {
+    if (!session || session.is_submitted || isExpired || timeUp || isEliminated) {
+      console.log('Answer selection blocked:', { session: !!session, is_submitted: session?.is_submitted, isExpired, timeUp, isEliminated })
+      return
+    }
 
     const currentQuestion = questions[currentQuestionIndex]
-    if (!currentQuestion) return
+    if (!currentQuestion) {
+      console.log('No current question found')
+      return
+    }
 
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQuestion.id]: {
-        session_id: sessionId,
-        question_id: currentQuestion.id,
-        selected_answer: answer,
-      },
-    }))
-  }
+    console.log('Selecting answer:', { questionId: currentQuestion.id, answer })
+
+    // Use functional update to ensure we have the latest state
+    setAnswers((prev) => {
+      // Create a new object to ensure React detects the change
+      const newAnswers = {
+        ...prev,
+        [currentQuestion.id]: {
+          session_id: sessionId,
+          question_id: currentQuestion.id,
+          selected_answer: answer,
+        },
+      }
+      console.log('Updated answers:', newAnswers)
+      return newAnswers
+    })
+  }, [session, sessionId, questions, currentQuestionIndex, isExpired, timeUp, isEliminated])
 
   // Disable navigation when time is up or eliminated
   const handleQuestionSelect = (index: number) => {
@@ -420,10 +443,14 @@ export default function QuizPage() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-red-600 mb-3 sm:mb-4">You Are Eliminated</h2>
-              <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed px-2">
-                You exceeded the allowed number of tab switches. To keep the quiz fair for everyone, this attempt has been closed. Please stay on the quiz screen next time — you&apos;ll do great!
-              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-red-600 mb-3 sm:mb-4">
+                Eliminated Due to Rule Violation
+              </h2>
+              <div className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed px-2 space-y-2">
+                <p>Your quiz attempt recorded too many tab changes.</p>
+                <p>To ensure a fair competition, your session has been submitted.</p>
+                <p>Please avoid switching tabs during your next attempt.</p>
+              </div>
             </div>
           </div>
         )}
