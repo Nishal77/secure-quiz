@@ -110,15 +110,16 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/assets/img.png)' }}>
+      <div className="absolute inset-0 bg-white opacity-30"></div>
+      <div className="relative z-10 container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           {/* Welcome Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome, {session.student_name}!
             </h1>
-            <p className="text-lg text-gray-600">USN: {session.usn}</p>
+            <p className="text-lg text-white">USN: {session.usn}</p>
             </div>
 
           {/* Quiz Instructions - Clean and Professional */}

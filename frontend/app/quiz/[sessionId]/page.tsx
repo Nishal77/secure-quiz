@@ -477,9 +477,8 @@ export default function QuizPage() {
                 You Are Eliminated
               </h2>
               <div className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed px-2 space-y-2">
-                <p>Your quiz attempt recorded too many tab changes.</p>
-                <p>To ensure a fair competition, this attempt has been terminated.</p>
-                <p>Please avoid switching tabs during your next attempt.</p>
+                <p>Your screen activity showed multiple tab changes.
+                For fairness, we must follow the rules and close this attempt.</p>
               </div>
             </div>
           </div>
