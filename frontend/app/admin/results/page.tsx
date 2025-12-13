@@ -220,26 +220,26 @@ export default function AdminResultsPage() {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Total Submissions</p>
             <p className="text-2xl font-bold text-gray-900">{statistics.total}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Average Score</p>
             <p className="text-2xl font-bold text-indigo-600">{statistics.average}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg  p-4">
             <p className="text-sm text-gray-600 mb-1">Highest Score</p>
             <p className="text-2xl font-bold text-green-600">{statistics.highest}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg  p-4">
             <p className="text-sm text-gray-600 mb-1">Lowest Score</p>
             <p className="text-2xl font-bold text-red-600">{statistics.lowest}</p>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-lg p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -260,7 +260,7 @@ export default function AdminResultsPage() {
             <p className="text-gray-600">Loading results...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white rounded-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -350,7 +350,7 @@ export default function AdminResultsPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {hasTabSwitches ? (
-                              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-100 border-2 border-red-400 rounded-lg shadow-sm">
+                              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-100 border-2 border-red-400 rounded-lg">
                                 <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse"></div>
                                 <span className="text-sm font-bold text-red-700">
                                   {tabSwitchCount}
