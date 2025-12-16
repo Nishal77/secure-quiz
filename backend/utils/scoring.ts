@@ -58,3 +58,4 @@ export function calculateScore(answers: AnswerData[]): ScoreResult {
   }
 }
 
+

@@ -30,3 +30,4 @@ CREATE POLICY "Admins can manage events"
   FOR ALL
   USING (auth.jwt() ->> 'role' = 'admin');
 
+

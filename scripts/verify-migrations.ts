@@ -37,3 +37,4 @@ Expected Results:
 ✅ 3 migrations recorded in schema_migrations
 `);
 
+

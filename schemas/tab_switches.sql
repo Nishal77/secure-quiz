@@ -21,3 +21,4 @@ CREATE POLICY "Admins can view tab switches"
   FOR SELECT
   USING (auth.jwt() ->> 'role' = 'admin');
 
+

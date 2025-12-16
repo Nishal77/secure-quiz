@@ -30,3 +30,4 @@ CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON sessions
 CREATE TRIGGER update_answers_updated_at BEFORE UPDATE ON answers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+

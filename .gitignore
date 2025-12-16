@@ -46,3 +46,7 @@ Thumbs.db
 # Supabase
 .supabase/
 
+# Project specific
+schemas/
+scripts/
+.cursor/

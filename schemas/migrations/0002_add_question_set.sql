@@ -13,3 +13,4 @@ CREATE INDEX IF NOT EXISTS idx_questions_question_set ON questions(question_set)
 -- Add comment for documentation
 COMMENT ON COLUMN questions.question_set IS 'Question set number (1-4) for random distribution across quiz sessions';
 
+

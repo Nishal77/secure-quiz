@@ -11,19 +11,19 @@ export default function AdminDashboard() {
       title: 'Live Sessions',
       description: 'Monitor all active quiz sessions in real-time',
       href: '/admin/sessions',
-      icon: '👥',
+      icon: 'perIcon',
     },
     {
       title: 'Results',
       description: 'View and analyze quiz results',
       href: '/admin/results',
-      icon: '📊',
+      icon: 'ReIcon',
     },
     {
       title: 'Events',
       description: 'Create events and upload question sets',
       href: '/admin/events',
-      icon: '📝',
+      icon: 'EventIcon(add later)',
     },
   ]
 
@@ -52,4 +52,5 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
 

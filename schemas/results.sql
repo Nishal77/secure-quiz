@@ -38,3 +38,4 @@ CREATE POLICY "Admins can manage all results"
   FOR ALL
   USING (auth.jwt() ->> 'role' = 'admin');
 
+
