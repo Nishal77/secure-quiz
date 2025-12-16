@@ -5,13 +5,13 @@ CREATE TABLE IF NOT EXISTS sessions (
   event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
   usn VARCHAR(50) NOT NULL,
   student_name VARCHAR(255) NOT NULL,
-  question_order UUID[] NOT NULL, -- Array of question IDs in randomized order
+  question_order UUID[] NOT NULL, -- Array of question IDs in randomized orderrrrr
   started_at TIMESTAMP WITH TIME ZONE NOT NULL,
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
   submitted_at TIMESTAMP WITH TIME ZONE,
   is_submitted BOOLEAN DEFAULT false,
   tab_switch_count INTEGER DEFAULT 0,
-  server_start_time TIMESTAMP WITH TIME ZONE NOT NULL, -- Server-verified start time
+  server_start_time TIMESTAMP WITH TIME ZONE NOT NULL, -- Server verifiedd start time
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(usn) -- USN can only be used once globally across all events
