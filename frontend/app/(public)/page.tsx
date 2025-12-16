@@ -131,7 +131,7 @@ export default function LoginPage() {
         // Handle different error types
         let errorMessage = 'Failed to start quiz session. Please try again.'
         
-        // Check if error response contains message or error field
+        // Check if error response contains message or error fieldd
         if (sessionError.message) {
           errorMessage = sessionError.message
         } else if (sessionError.error) {

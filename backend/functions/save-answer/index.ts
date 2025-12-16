@@ -1,90 +1,156 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { supabase, corsHeaders } from '../utils/supabase.ts'
 
+// Type definitions
+interface SaveAnswerRequest {
+  sessionId: string
+  questionId: string
+  selectedAnswer?: string | null
+}
+
+interface SessionData {
+  is_submitted: boolean
+  expires_at: string
+}
+
+// Constants
+const VALID_ANSWER_OPTIONS = ['A', 'B', 'C', 'D'] as const
+const ANSWER_CONFLICT_COLUMNS = 'session_id,question_id' as const
+
+// Helper functions
+function createJsonResponse(data: unknown, status: number = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+}
+
+function createErrorResponse(message: string, status: number = 500): Response {
+  return createJsonResponse({ error: message }, status)
+}
+
+function validateRequiredFields(sessionId: unknown, questionId: unknown): string | null {
+  if (!sessionId || !questionId) {
+    return 'Missing required fields: sessionId and questionId are required'
+  }
+  return null
+}
+
+function validateAnswerFormat(answer: string | null | undefined): string | null {
+  if (!answer) {
+    return null // null/undefined answers are allowed (for clearing answers)
+  }
+
+  const normalizedAnswer = answer.toUpperCase()
+  if (!VALID_ANSWER_OPTIONS.includes(normalizedAnswer as typeof VALID_ANSWER_OPTIONS[number])) {
+    return 'Invalid answer format. Must be one of: A, B, C, or D'
+  }
+  return null
+}
+
+function normalizeAnswer(answer: string | null | undefined): string | null {
+  return answer ? answer.toUpperCase() : null
+}
+
+async function fetchSession(sessionId: string): Promise<SessionData | null> {
+  const { data: session, error } = await supabase
+    .from('sessions')
+    .select('is_submitted, expires_at')
+    .eq('id', sessionId)
+    .single()
+
+  if (error || !session) {
+    return null
+  }
+
+  return session as SessionData
+}
+
+function validateSession(session: SessionData | null): string | null {
+  if (!session) {
+    return 'Session not found'
+  }
+
+  if (session.is_submitted) {
+    return 'Session already submitted'
+  }
+
+  const now = new Date()
+  const expiresAt = new Date(session.expires_at)
+  if (now > expiresAt) {
+    return 'Time has expired'
+  }
+
+  return null
+}
+
+async function saveAnswer(
+  sessionId: string,
+  questionId: string,
+  selectedAnswer: string | null
+): Promise<string | null> {
+  const { error } = await supabase
+    .from('answers')
+    .upsert(
+      {
+        session_id: sessionId,
+        question_id: questionId,
+        selected_answer: selectedAnswer,
+      },
+      {
+        onConflict: ANSWER_CONFLICT_COLUMNS,
+      }
+    )
+
+  if (error) {
+    return 'Failed to save answer to database'
+  }
+
+  return null
+}
+
+// Main handler
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { sessionId, questionId, selectedAnswer } = await req.json()
+    const requestBody: SaveAnswerRequest = await req.json()
+    const { sessionId, questionId, selectedAnswer } = requestBody
 
-    if (!sessionId || !questionId) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Validate required fields
+    const requiredFieldsError = validateRequiredFields(sessionId, questionId)
+    if (requiredFieldsError) {
+      return createErrorResponse(requiredFieldsError, 400)
     }
 
     // Validate answer format
-    if (selectedAnswer && !['A', 'B', 'C', 'D'].includes(selectedAnswer.toUpperCase())) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid answer format' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    const answerFormatError = validateAnswerFormat(selectedAnswer)
+    if (answerFormatError) {
+      return createErrorResponse(answerFormatError, 400)
     }
 
-    // Check if session exists and is not submitted
-    const { data: session, error: sessionError } = await supabase
-      .from('sessions')
-      .select('is_submitted, expires_at')
-      .eq('id', sessionId)
-      .single()
-
-    if (sessionError || !session) {
-      return new Response(
-        JSON.stringify({ error: 'Session not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Fetch and validate session
+    const session = await fetchSession(sessionId)
+    const sessionValidationError = validateSession(session)
+    if (sessionValidationError) {
+      const statusCode = sessionValidationError === 'Session not found' ? 404 : 400
+      return createErrorResponse(sessionValidationError, statusCode)
     }
 
-    if (session.is_submitted) {
-      return new Response(
-        JSON.stringify({ error: 'Session already submitted' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Normalize and save answer
+    const normalizedAnswer = normalizeAnswer(selectedAnswer)
+    const saveError = await saveAnswer(sessionId, questionId, normalizedAnswer)
+    if (saveError) {
+      return createErrorResponse(saveError, 500)
     }
 
-    // Check if time has expired
-    const now = new Date()
-    const expiresAt = new Date(session.expires_at)
-    if (now > expiresAt) {
-      return new Response(
-        JSON.stringify({ error: 'Time has expired' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Upsert answer
-    const { error: answerError } = await supabase
-      .from('answers')
-      .upsert(
-        {
-          session_id: sessionId,
-          question_id: questionId,
-          selected_answer: selectedAnswer ? selectedAnswer.toUpperCase() : null,
-        },
-        {
-          onConflict: 'session_id,question_id',
-        }
-      )
-
-    if (answerError) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to save answer' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createJsonResponse({ success: true }, 200)
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    return createErrorResponse(errorMessage, 500)
   }
 })
 
